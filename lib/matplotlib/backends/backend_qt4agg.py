@@ -155,7 +155,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.blitbox = bbox
         l, b, w, h = bbox.bounds
         t = b + h
-        self.repaint(l, self.renderer.height-t, w, h)
+        self.update(l, self.renderer.height-t, w, h)
 
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
