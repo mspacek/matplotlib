@@ -2172,6 +2172,7 @@ class FigureCanvasBase(object):
         """
         default_filename = self.get_window_title() or 'image'
         default_filename = default_filename.replace(' ', '_')
+        default_filename = default_filename.replace('/', '_')
         return default_filename + '.' + self.get_default_filetype()
 
     def switch_backends(self, FigureCanvasClass):
