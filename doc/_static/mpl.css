@@ -6,7 +6,6 @@
 body {
     font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
-    letter-spacing: -0.01em;
     line-height: 150%;
     text-align: center;
     background-color: #BFD1D4;
@@ -14,13 +13,22 @@ body {
     padding: 0;
     border: 1px solid #aaa;
     color: #333;
-    margin: 0px 80px 0px 80px;
+    margin: auto;
     min-width: 740px;
+    max-width: 1200px;
 }
 
 a {
     color: #CA7900;
     text-decoration: none;
+}
+
+div.highlight-python a {
+    color: #CA7900;
+}
+
+div.highlight-python a:hover {
+    color: #2491CF;
 }
 
 strong {
@@ -43,6 +51,7 @@ pre {
     border: 1px solid #ccc;
     background-color: #f8f8f8;
     line-height: 140%;
+    overflow-x: auto;
 }
 
 td.linenos pre {
@@ -233,6 +242,11 @@ div.sphinxsidebar h4, div.sphinxsidebar h3 {
     background-color: #AFC1C4;
 }
 
+div.sphinxsidebar h3 a {
+    /* workaround for table of contents heading, which is a link */
+    color: white !important;
+}
+
 div.sphinxsidebar ul {
     padding-left: 1.5em;
     margin-top: 7px;
@@ -244,6 +258,36 @@ div.sphinxsidebar ul {
 div.sphinxsidebar ul ul {
     list-style: square;
     margin-left: 20px;
+}
+
+div.sphinxsidebar #searchbox input {
+    border: 1px solid #aaa;
+    padding: 0.25em;
+    box-sizing: border-box;
+}
+
+div.sphinxsidebar #searchbox form {
+    display: inline-block;
+    width: 100%
+}
+
+div.sphinxsidebar #searchbox input[type="text"] {
+    float: left;
+    width: 80%;
+}
+
+div.sphinxsidebar #searchbox input[type="submit"] {
+    float: left;
+    width: 20%;
+    border-left: none;
+}
+
+div.sphinxsidebar #searchbox input[type="submit"]:hover {
+    background: #ddd;
+}
+
+div.sphinxsidebar .searchformwrapper {
+    display: block;
 }
 
 p {
@@ -269,7 +313,7 @@ h2 {
 }
 
 h3 {
-    margin: 1em 0 -0.3em 0;
+    margin: 0.2em 0 0.1em 0;
     font-size: 1.2em;
 }
 
@@ -355,7 +399,30 @@ div.admonition, div.warning {
     font-size: 0.9em;
 }
 
-div.admonition p, div.warning p {
+div.warning {
+    color: #b94a48;
+    background-color: #F3E5E5;
+    border: 1px solid #eed3d7;
+}
+
+div.deprecated {
+    color: #606060;
+    background-color: #f0f0f0;
+    border: 1px solid #404040;
+}
+
+div.deprecated span.versionmodified {
+    color: #606060;
+    font-weight: bold;
+}
+
+div.green {
+    color: #468847;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+}
+
+div.admonition p, div.warning p, div.deprecated p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
@@ -364,6 +431,11 @@ div.admonition pre, div.warning pre {
     margin: 0.4em 1em 0.4em 1em;
 }
 
+div.admonition p.admonition-title + p {
+    display: inline;
+}
+
+
 div.admonition p.admonition-title,
 div.warning p.admonition-title {
     margin: 0;
@@ -371,12 +443,44 @@ div.warning p.admonition-title {
     font-size: 14px;
 }
 
+div.admonition, div.deprecated {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 7px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+  }
+
+div.note {
+    background-color: #eee;
+    border: 1px solid #ccc;
+}
+
+div.topic {
+    background-color: #eee;
+    border: 1px solid #CCC;
+    margin: 10px 0px;
+    padding: 7px 7px 0px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+
+p.topic-title {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+div.seealso {
+    background-color: #FFFBE8;
+    border: 1px solid #fbeed5;
+    color: #AF8A4B;
+  }
+
 div.warning {
     border: 1px solid #940000;
 }
 
 div.warning p.admonition-title {
-    background-color: #CF0000;
     border-bottom-color: #940000;
 }
 
@@ -510,19 +614,27 @@ table.docutils {
 .longtable.docutils {
     font-size: 12px;
     margin-bottom: 30px;
-    background-color: #ccc;
 }
 .longtable.docutils, .longtable.docutils td {
     border-color: #ccc;
 }
 
-/* module summary table */
-.longtable.docutils {
-    font-size: 12px;
-    margin-bottom: 30px;
+.longtable.docutils tr.row-even{
+    background-color: #eff3f4;
 }
-.longtable.docutils, .longtable.docutils td {
-    border-color: #ccc;
+
+/* tables inside parameter descriptions */
+td.field-body table.property-table {
+    width: 100%;
+}
+
+td.field-body table.property-table th {
+    padding: 2px 10px;
+    border: 0;
+}
+
+td.field-body table.property-table td {
+    padding: 2px 10px;
 }
 
 /* function and class description */
@@ -557,16 +669,20 @@ dl.class dd, dl.function dd {
 }
 
 /* function and class description */
-dl.class, dl.function, dl.method, dl.attribute {
+dl.function, dl.method, dl.attribute {
     border-top: 1px solid #ccc;
     padding-top: 6px;
 }
 
-dl.class, dl.function {
+dl.function {
     border-top: 1px solid #888;
-  margin-top: 15px;
+    margin-top: 15px;
 }
 
+dl.class {
+    padding-top: 6px;
+    margin-top: 15px;
+}
 
 .descclassname {
     color: #aaa;
@@ -577,6 +693,9 @@ dl.class, dl.function {
     font-family: monospace;
 }
 
+table.docutils.field-list {
+    width: 100%;
+}
 
 .docutils.field-list th {
     background-color: #eee;
@@ -649,4 +768,207 @@ figcaption {
   text-align: center;
 }
 
+/* "Go to released version" message. */
+#unreleased-message {
+  background: #d62728;
+  box-sizing: border-box;
+  color: #fff;
+  font-weight: bold;
+  left: 0;
+  min-height: 3em;
+  padding: 0.5em;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+}
+
+#unreleased-message + div {
+  margin-top: 3em;
+}
+
+#unreleased-message a {
+  color: #fff;
+  text-decoration:underline;
+}
+
+/* Fork me on GitHub "button" */
+#forkongithub a{
+  background:#FF7F0E;
+  color:#fff !important;
+  text-decoration:none;
+  text-align:center;
+  font-weight:bold;
+  padding:5px 40px;
+  line-height:1.5rem;
+  position:relative;
+  transition:background .25s ease;
+}
+#forkongithub a:hover{
+  background:#CA7900;
+}
+#forkongithub a::before,#forkongithub a::after{
+  content:"";
+  width:100%;
+  display:block;
+  position:absolute;
+  top:1px;
+  left:0;
+  height:1px;
+  background:#fff;
+}
+#forkongithub a::after{
+  bottom:1px;
+  top:auto;
+}
+@media screen and (min-width:700px){
+  #forkongithub{
+    position:absolute;
+    top:0;
+    right:0;
+    width:150px;
+    overflow:hidden;
+    height:150px;
+    z-index:9999;
+  }
+  #forkongithub a{
+    width:150px;
+    position:absolute;
+    top:40px;
+    right:-60px;
+    transform:rotate(45deg);
+    -webkit-transform:rotate(45deg);
+    -ms-transform:rotate(45deg);
+    -moz-transform:rotate(45deg);
+    -o-transform:rotate(45deg);
+    box-shadow:4px 4px 10px rgba(0,0,0,0.8);
+  }
+}
+
+#sidebar-donations {
+    margin-top: 28px;
+}
+
+.donate_button {
+    background:#11557C;
+    font-weight:normal;
+    border:solid 1px #fff;
+    outline: solid 1px #11557C;
+    clear: both;
+    display: block;
+    width:200px;
+    line-height:2.8;
+    font-size: 16px;
+    text-align: center;
+    cursor:pointer;
+    color:#fff;
+    text-decoration: none;
+    margin: 30px auto 0;
+    z-index:1;
+    transition: background .25s ease;
+}
+
+.donate_button:last-of-type {
+    margin: 15px auto 30px;
+
+
+}
+
+.donate_button:hover, .donate_button:active, .donate_button:focus {
+    background: #003c63;
+    outline-color: #003c63;
+}
+
+
+div.responsive_screenshots {
+    /* Horizontally centered */
+    display: block;
+    margin: auto;
+
+    /* Do not go beyond 1:1 scale (and ensure a 1x4 tight layout) */
+    max-width: 640px;  /* at most 4 x 1:1 subfig width  */
+    max-height: 120px; /* at most 1 x 1:1 subfig height */
+}
+
+/* To avoid subfigure parts outside of the responsive_screenshots  */
+/* element (see: https://stackoverflow.com/questions/2062258/      */
+/* floating-stuff-within-a-div-floats-outside-of-div-why)          */
+span.clear_screenshots { clear: left; display: block; }
+
+div.responsive_subfig{
+    float: left;
+    width: 25%;  /* we want 4 subfigs in a row */
+
+    /* Include content, padding and border in width. This should */
+    /* avoid having to use tricks like "width: 24.9999%"         */
+    box-sizing: border-box;
+}
+
+div.responsive_subfig img {
+    /* Horizontally centered */
+    display: block;
+    margin: auto;
+
+    /* Possible downscaling */
+    max-width: 162px;  /* at most 1 x 1:1 subfig width  */
+    max-height: 139px; /* at most 1 x 1:1 subfig height */
+
+    width: 100%;
+}
+
+@media only screen and (max-width: 1000px){
+    /* The value of 1000px was handcrafted to provide a more or less */
+    /* smooth transition between the 1x4 and the 2x2 layouts. It is  */
+    /* NB: it is slightly below 1024px: so one should still have a   */
+    /* row in a 1024x768 window                                      */
+
+    div.responsive_screenshots {
+        /* Do not go beyond 1:1 scale (and ensure a 2x2 tight layout) */
+        max-width: 324px;  /* at most 2 x 1:1 subfig width  */
+        max-height: 278px; /* at most 2 x 1:1 subfig height */
+    }
+
+    div.responsive_subfig {
+        width: 50%;  /* we want 2 subfigs in a row */
+    }
+}
+
+/* Sphinx gallery display */
+
+div.align-center {
+    margin: auto;
+    text-align: center;
+}
+
+p.caption {
+    font-weight: bold;
+}
+
+div#gallery.section, div#tutorials.section {
+    overflow: hidden;
+}
+
+.sphx-glr-thumbcontainer {
+    border: solid #d6d6d6 1px !important;
+    text-align: center !important;
+    font-size: 1.2em !important;
+}
+
+div.sphx-glr-download {
+    width: auto !important;
+}
+
+div.sphx-glr-download a {
+   background-color: #d9edf7 !important;
+   border: 1px solid #bce8f1 !important;
+   background-image: none !important;
+}
+
+p.sphx-glr-signature a.reference.external {
+   display: none !important;
+}
+
+.sphx-glr-thumbcontainer a.internal {
+    font-weight: 400;
+}
 

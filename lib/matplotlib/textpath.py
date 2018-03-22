@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function
+from collections import OrderedDict
+import urllib.parse
 import warnings
-import urllib
 
 import numpy as np
 
 from matplotlib.path import Path
 from matplotlib import rcParams
 import matplotlib.font_manager as font_manager
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ft2font import LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
-from matplotlib.font_manager import FontProperties
+from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.transforms import Affine2D
 
 
@@ -26,9 +24,6 @@ class TextToPath(object):
     DPI = 72
 
     def __init__(self):
-        """
-        Initialization
-        """
         self.mathtext_parser = MathTextParser('path')
         self.tex_font_map = None
 
@@ -42,14 +37,14 @@ class TextToPath(object):
     def _get_adobe_standard_encoding(self):
         enc_name = dviread.find_tex_file('8a.enc')
         enc = dviread.Encoding(enc_name)
-        return dict([(c, i) for i, c in enumerate(enc.encoding)])
+        return {c: i for i, c in enumerate(enc.encoding)}
 
     def _get_font(self, prop):
         """
         find a ttf font.
         """
         fname = font_manager.findfont(prop)
-        font = FT2Font(str(fname))
+        font = get_font(fname)
         font.set_size(self.FONT_SCALE, self.DPI)
 
         return font
@@ -63,10 +58,10 @@ class TextToPath(object):
         """
         sfnt = font.get_sfnt()
         try:
-            ps_name = sfnt[(1, 0, 0, 6)].decode('ascii')
+            ps_name = sfnt[1, 0, 0, 6].decode('mac_roman')
         except KeyError:
-            ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
-        char_id = urllib.quote('%s-%x' % (ps_name, ccode))
+            ps_name = sfnt[3, 1, 0x0409, 6].decode('utf-16be')
+        char_id = urllib.parse.quote('%s-%x' % (ps_name, ccode))
         return char_id
 
     def _get_char_id_ps(self, font, ccode):
@@ -74,7 +69,7 @@ class TextToPath(object):
         Return a unique id for the given font and character-code set (for tex).
         """
         ps_name = font.get_ps_font_info()[2]
-        char_id = urllib.quote('%s-%d' % (ps_name, ccode))
+        char_id = urllib.parse.quote('%s-%d' % (ps_name, ccode))
         return char_id
 
     def glyph_to_path(self, font, currx=0.):
@@ -95,7 +90,7 @@ class TextToPath(object):
             return w, h, d
 
         fontsize = prop.get_size_in_points()
-        scale = float(fontsize) / self.FONT_SCALE
+        scale = fontsize / self.FONT_SCALE
 
         if ismath:
             prop = prop.copy()
@@ -162,13 +157,11 @@ class TextToPath(object):
     def get_glyphs_with_font(self, font, s, glyph_map=None,
                              return_new_glyphs_only=False):
         """
-        convert the string *s* to vertices and codes using the
-        provided ttf font.
+        Convert string *s* to vertices and codes using the provided ttf font.
         """
 
         # Mostly copied from backend_svg.py.
 
-        cmap = font.get_charmap()
         lastgind = None
 
         currx = 0
@@ -176,10 +169,10 @@ class TextToPath(object):
         glyph_ids = []
 
         if glyph_map is None:
-            glyph_map = dict()
+            glyph_map = OrderedDict()
 
         if return_new_glyphs_only:
-            glyph_map_new = dict()
+            glyph_map_new = OrderedDict()
         else:
             glyph_map_new = glyph_map
 
@@ -187,7 +180,7 @@ class TextToPath(object):
 
         for c in s:
             ccode = ord(c)
-            gind = cmap.get(ccode)
+            gind = font.get_char_index(ccode)
             if gind is None:
                 ccode = ord('?')
                 gind = 0
@@ -198,13 +191,13 @@ class TextToPath(object):
                 kern = 0
 
             glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-            horiz_advance = (glyph.linearHoriAdvance / 65536.0)
+            horiz_advance = glyph.linearHoriAdvance / 65536
 
             char_id = self._get_char_id(font, ccode)
-            if not char_id in glyph_map:
+            if char_id not in glyph_map:
                 glyph_map_new[char_id] = self.glyph_to_path(font)
 
-            currx += (kern / 64.0)
+            currx += kern / 64
 
             xpositions.append(currx)
             glyph_ids.append(char_id)
@@ -218,7 +211,7 @@ class TextToPath(object):
 
         rects = []
 
-        return (zip(glyph_ids, xpositions, ypositions, sizes),
+        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, rects)
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
@@ -235,10 +228,10 @@ class TextToPath(object):
             s, self.DPI, prop)
 
         if not glyph_map:
-            glyph_map = dict()
+            glyph_map = OrderedDict()
 
         if return_new_glyphs_only:
-            glyph_map_new = dict()
+            glyph_map_new = OrderedDict()
         else:
             glyph_map_new = glyph_map
 
@@ -250,7 +243,7 @@ class TextToPath(object):
         currx, curry = 0, 0
         for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
-            if not char_id in glyph_map:
+            if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
@@ -271,7 +264,7 @@ class TextToPath(object):
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-        return (zip(glyph_ids, xpositions, ypositions, sizes),
+        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
     def get_texmanager(self):
@@ -308,16 +301,14 @@ class TextToPath(object):
         else:
             dvifile = texmanager.make_dvi(s, self.FONT_SCALE)
             dvi = dviread.Dvi(dvifile, self.DPI)
-        try:
+        with dvi:
             page = next(iter(dvi))
-        finally:
-            dvi.close()
 
         if glyph_map is None:
-            glyph_map = dict()
+            glyph_map = OrderedDict()
 
         if return_new_glyphs_only:
-            glyph_map_new = dict()
+            glyph_map_new = OrderedDict()
         else:
             glyph_map_new = glyph_map
 
@@ -331,7 +322,13 @@ class TextToPath(object):
             font_bunch = self.tex_font_map[dvifont.texname]
 
             if font_and_encoding is None:
-                font = FT2Font(str(font_bunch.filename))
+                if font_bunch.filename is None:
+                    raise ValueError(
+                        ("No usable font file found for %s (%s). "
+                         "The font may lack a Type-1 version.")
+                        % (font_bunch.psname, dvifont.texname))
+
+                font = get_font(font_bunch.filename)
 
                 for charmap_name, charmap_code in [("ADOBE_CUSTOM",
                                                     1094992451),
@@ -339,7 +336,7 @@ class TextToPath(object):
                                                     1094995778)]:
                     try:
                         font.select_charmap(charmap_code)
-                    except ValueError:
+                    except (ValueError, RuntimeError):
                         pass
                     else:
                         break
@@ -350,10 +347,10 @@ class TextToPath(object):
 
                 if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
                     enc0 = dviread.Encoding(font_bunch.encoding)
-                    enc = dict([(i, self._adobe_standard_encoding.get(c, None))
-                                for i, c in enumerate(enc0.encoding)])
+                    enc = {i: self._adobe_standard_encoding.get(c, None)
+                           for i, c in enumerate(enc0.encoding)}
                 else:
-                    enc = dict()
+                    enc = {}
                 self._ps_fontd[dvifont.texname] = font, enc
 
             else:
@@ -363,7 +360,7 @@ class TextToPath(object):
 
             char_id = self._get_char_id_ps(font, glyph)
 
-            if not char_id in glyph_map:
+            if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 if enc:
@@ -397,7 +394,7 @@ class TextToPath(object):
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-        return (zip(glyph_ids, xpositions, ypositions, sizes),
+        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
 
@@ -482,8 +479,7 @@ class TextPath(Path):
         necessary.
 
         """
-        if (self._invalid or
-            (self._cached_vertices is None)):
+        if self._invalid or self._cached_vertices is None:
             tr = Affine2D().scale(
                     self._size / text_to_path.FONT_SCALE,
                     self._size / text_to_path.FONT_SCALE).translate(*self._xy)

@@ -1,9 +1,11 @@
+.. highlight:: bash
+
 ================
  Making a patch
 ================
 
 You've discovered a bug or something else you want to change
-in matplotlib_ .. |emdash| excellent!
+in `Matplotlib`_ .. |emdash| excellent!
 
 You've worked out a way to fix it |emdash| even better!
 
@@ -44,20 +46,20 @@ Overview
    # make the patch files
    git format-patch -M -C master
 
-Then, send the generated patch files to the `matplotlib
+Then, send the generated patch files to the `Matplotlib
 mailing list`_ |emdash| where we will thank you warmly.
 
 In detail
 ---------
 
-#. Tell git_ who you are so it can label the commits you've
+#. Tell git who you are so it can label the commits you've
    made::
 
       git config --global user.email you@yourdomain.example.com
       git config --global user.name "Your Name Comes Here"
 
 #. If you don't already have one, clone a copy of the
-   matplotlib_ repository::
+   `Matplotlib`_ repository::
 
       git clone git://github.com/matplotlib/matplotlib.git
       cd matplotlib
@@ -95,12 +97,14 @@ In detail
 
       git format-patch -M -C master
 
-   You will now have several files named for the commits::
+   You will now have several files named for the commits:
+
+   .. code-block:: none
 
       0001-BF-added-tests-for-Funny-bug.patch
       0002-BF-added-fix-for-Funny-bug.patch
 
-   Send these files to the `matplotlib mailing list`_.
+   Send these files to the `Matplotlib mailing list`_.
 
 When you are done, to switch back to the main copy of the
 code, just return to the ``master`` branch::
@@ -115,7 +119,7 @@ more feature branches, you will probably want to switch to
 development mode.  You can do this with the repository you
 have.
 
-Fork the matplotlib_ repository on github_ |emdash| :ref:`forking`.
+Fork the `Matplotlib`_ repository on github |emdash| :ref:`forking`.
 Then::
 
    # checkout and refresh master branch from main repo

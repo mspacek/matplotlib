@@ -1,9 +1,14 @@
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import six
+
 from matplotlib.patches import _Style, FancyArrowPatch
 from matplotlib.transforms import IdentityTransform
 from matplotlib.path import Path
 import numpy as np
 
-class _FancyAxislineStyle:
+class _FancyAxislineStyle(object):
     class SimpleArrow(FancyArrowPatch):
         """
         The artist class that will be returned for SimpleArrow style.
@@ -117,7 +122,7 @@ class AxislineStyle(_Style):
             """
             initialization.
             """
-            super(AxislineStyle._Base, self).__init__()
+            super().__init__()
 
 
 
@@ -145,7 +150,7 @@ class AxislineStyle(_Style):
             """
 
             self.size = size
-            super(AxislineStyle.SimpleArrow, self).__init__()
+            super().__init__()
 
         def new_line(self, axis_artist, transform):
 
@@ -161,4 +166,3 @@ class AxislineStyle(_Style):
         ArrowAxisClass = _FancyAxislineStyle.FilledArrow
 
     _style_list["-|>"] = FilledArrow
-

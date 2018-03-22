@@ -10,9 +10,15 @@ floats. Take a look at the Divider class to see how these two
 values are used.
 
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
-import matplotlib.cbook as cbook
+import six
+
+from numbers import Number
+
 from matplotlib.axes import Axes
+
 
 class _Base(object):
     "Base class"
@@ -39,6 +45,7 @@ class Add(_Base):
         a_rel_size, a_abs_size = self._a.get_size(renderer)
         b_rel_size, b_abs_size = self._b.get_size(renderer)
         return a_rel_size + b_rel_size, a_abs_size + b_abs_size
+
 
 class AddList(_Base):
     def __init__(self, add_list):
@@ -71,7 +78,20 @@ class Scaled(_Base):
         abs_size = 0.
         return rel_size, abs_size
 
-Scalable=Scaled
+Scalable = Scaled
+
+
+def _get_axes_aspect(ax):
+    aspect = ax.get_aspect()
+    # when aspec is "auto", consider it as 1.
+    if aspect in ('normal', 'auto'):
+        aspect = 1.
+    elif aspect == "equal":
+        aspect = 1
+    else:
+        aspect = float(aspect)
+
+    return aspect
 
 
 class AxesX(_Base):
@@ -79,28 +99,48 @@ class AxesX(_Base):
     Scaled size whose relative part corresponds to the data width
     of the *axes* multiplied by the *aspect*.
     """
-    def __init__(self, axes, aspect=1.):
+    def __init__(self, axes, aspect=1., ref_ax=None):
         self._axes = axes
         self._aspect = aspect
+        if aspect == "axes" and ref_ax is None:
+            raise ValueError("ref_ax must be set when aspect='axes'")
+        self._ref_ax = ref_ax
 
     def get_size(self, renderer):
         l1, l2 = self._axes.get_xlim()
-        rel_size = abs(l2-l1)*self._aspect
+        if self._aspect == "axes":
+            ref_aspect = _get_axes_aspect(self._ref_ax)
+            aspect = ref_aspect/_get_axes_aspect(self._axes)
+        else:
+            aspect = self._aspect
+
+        rel_size = abs(l2-l1)*aspect
         abs_size = 0.
         return rel_size, abs_size
+
 
 class AxesY(_Base):
     """
     Scaled size whose relative part corresponds to the data height
     of the *axes* multiplied by the *aspect*.
     """
-    def __init__(self, axes, aspect=1.):
+    def __init__(self, axes, aspect=1., ref_ax=None):
         self._axes = axes
         self._aspect = aspect
+        if aspect == "axes" and ref_ax is None:
+            raise ValueError("ref_ax must be set when aspect='axes'")
+        self._ref_ax = ref_ax
 
     def get_size(self, renderer):
         l1, l2 = self._axes.get_ylim()
-        rel_size = abs(l2-l1)*self._aspect
+
+        if self._aspect == "axes":
+            ref_aspect = _get_axes_aspect(self._ref_ax)
+            aspect = _get_axes_aspect(self._axes)
+        else:
+            aspect = self._aspect
+
+        rel_size = abs(l2-l1)*aspect
         abs_size = 0.
         return rel_size, abs_size
 
@@ -160,7 +200,6 @@ class MaxWidth(_Base):
         return rel_size, abs_size
 
 
-
 class MaxHeight(_Base):
     """
     Size whose absolute part is the largest height of
@@ -205,6 +244,7 @@ class Fraction(_Base):
             abs_size = a*self._fraction
             return rel_size, abs_size
 
+
 class Padded(_Base):
     """
     Return a instance where the absolute part of *size* is
@@ -220,6 +260,7 @@ class Padded(_Base):
         abs_size = a + self._pad
         return rel_size, abs_size
 
+
 def from_any(size, fraction_ref=None):
     """
     Creates Fixed unit when the first argument is a float, or a
@@ -230,11 +271,11 @@ def from_any(size, fraction_ref=None):
       >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
 
     """
-    if cbook.is_numlike(size):
+    if isinstance(size, Number):
         return Fixed(size)
-    elif cbook.is_string_like(size):
+    elif isinstance(size, six.string_types):
         if size[-1] == "%":
-            return Fraction(float(size[:-1])/100., fraction_ref)
+            return Fraction(float(size[:-1]) / 100, fraction_ref)
 
     raise ValueError("Unknown format")
 
@@ -251,6 +292,7 @@ class SizeFromFunc(_Base):
         abs_size = bb/dpi
 
         return rel_size, abs_size
+
 
 class GetExtentHelper(object):
     def _get_left(tight_bbox, axes_bbox):
@@ -287,4 +329,3 @@ class GetExtentHelper(object):
         vl = [self._get_func(ax.get_tightbbox(renderer, False),
                              ax.bbox) for ax in self._ax_list]
         return max(vl)
-

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Matplotlib documentation build configuration file, created by
 # sphinx-quickstart on Fri May  2 12:33:25 2008.
 #
@@ -11,8 +9,12 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+from glob import glob
 import os
+import shutil
 import sys
+
+import matplotlib
 import sphinx
 
 # If your extensions are in another directory, add it here. If the directory
@@ -25,27 +27,108 @@ sys.path.append(os.path.abspath('.'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
-              'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
-              'sphinx.ext.doctest', 'sphinx.ext.autosummary',
-              'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
-              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting',
-              'sphinxext.github',
-              'numpydoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.doctest',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.intersphinx',
+    'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive',
+    'numpydoc',  # Needs to be loaded *after* autodoc.
+    'sphinx_gallery.gen_gallery',
+    'matplotlib.sphinxext.mathmpl',
+    'matplotlib.sphinxext.only_directives',
+    'matplotlib.sphinxext.plot_directive',
+    'sphinxext.custom_roles',
+    'sphinxext.github',
+    'sphinxext.math_symbol_table',
+    'sphinxext.mock_gui_toolkits',
+    'sphinxext.skip_deprecated',
+]
+
+exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
 
-try:
-    import numpydoc
-except ImportError:
-    raise ImportError("No module named numpydoc - you need to install "
-                      "numpydoc to build the documentation.")
+def _check_deps():
+    names = {"colorspacious": 'colorspacious',
+             "IPython.sphinxext.ipython_console_highlighting": 'ipython',
+             "matplotlib": 'matplotlib',
+             "numpydoc": 'numpydoc',
+             "PIL.Image": 'pillow',
+             "sphinx_gallery": 'sphinx_gallery'}
+    missing = []
+    for name in names:
+        try:
+            __import__(name)
+        except ImportError:
+            missing.append(names[name])
+    if missing:
+        raise ImportError(
+            "The following dependencies are missing to build the "
+            "documentation: {}".format(", ".join(missing)))
 
+_check_deps()
+
+# Import only after checking for dependencies.
+from sphinx_gallery.sorting import ExplicitOrder
+
+if shutil.which('dot') is None:
+    raise OSError(
+        "No binary named dot - you need to install the Graph Visualization "
+        "software (usually packaged as 'graphviz') to build the documentation")
 
 autosummary_generate = True
 
-if sphinx.__version__ >= 1.1:
-    autodoc_docstring_signature = True
+autodoc_docstring_signature = True
+autodoc_default_flags = ['members', 'undoc-members']
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None)
+}
+
+explicit_order_folders = [
+                          '../examples/api',
+                          '../examples/pyplots',
+                          '../examples/subplots_axes_and_figures',
+                          '../examples/color',
+                          '../examples/statistics',
+                          '../examples/lines_bars_and_markers',
+                          '../examples/images_contours_and_fields',
+                          '../examples/shapes_and_collections',
+                          '../examples/text_labels_and_annotations',
+                          '../examples/pie_and_polar_charts',
+                          '../examples/style_sheets',
+                          '../examples/axes_grid',
+                          '../examples/showcase',
+                          '../tutorials/introductory',
+                          '../tutorials/intermediate',
+                          '../tutorials/advanced']
+for folder in sorted(glob('../examples/*') + glob('../tutorials/*')):
+    if not os.path.isdir(folder) or folder in explicit_order_folders:
+        continue
+    explicit_order_folders.append(folder)
+
+# Sphinx gallery configuration
+sphinx_gallery_conf = {
+    'examples_dirs': ['../examples', '../tutorials'],
+    'filename_pattern': '^((?!sgskip).)*$',
+    'gallery_dirs': ['gallery', 'tutorials'],
+    'doc_module': ('matplotlib', 'mpl_toolkits'),
+    'reference_url': {
+        'matplotlib': None,
+        'numpy': 'https://docs.scipy.org/doc/numpy',
+        'scipy': 'https://docs.scipy.org/doc/scipy/reference',
+    },
+    'backreferences_dir': 'api/_as_gen',
+    'subsection_order': ExplicitOrder(explicit_order_folders),
+    'min_reported_time': 1,
+}
+
+plot_gallery = 'True'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -53,22 +136,22 @@ templates_path = ['_templates']
 # The suffix of source filenames.
 source_suffix = '.rst'
 
+# This is the default encoding, but it doesn't hurt to be explicit
+source_encoding = "utf-8"
+
 # The master toctree document.
 master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team; 2012 - 2013 The matplotlib development team'
+copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
+             'Michael Droettboom and the Matplotlib development '
+             'team; 2012 - 2018 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-try:
-    import matplotlib
-except ImportError:
-    msg = "Error: matplotlib must be installed before building the documentation"
-    sys.exit(msg)
 
 version = matplotlib.__version__
 # The full version, including alpha/beta/rc tags.
@@ -102,33 +185,11 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
-
-# Subdirectories in 'examples/' directory of package and titles for gallery
-mpl_example_sections = (
-    ('lines_bars_and_markers', 'Lines, bars, and markers'),
-    ('shapes_and_collections', 'Shapes and collections'),
-    ('statistics', 'Statistical plots'),
-    ('images_contours_and_fields', 'Images, contours, and fields'),
-    ('pie_and_polar_charts', 'Pie and polar charts'),
-    ('color', 'Color'),
-    ('text_labels_and_annotations', 'Text, labels, and annotations'),
-    ('ticks_and_spines', 'Ticks and spines'),
-    ('subplots_axes_and_figures', 'Subplots, axes, and figures'),
-    ('specialty_plots', 'Specialty plots'),
-    ('showcase', 'Showcase'),
-    ('api', 'API'),
-    ('pylab_examples', 'pylab examples'),
-    ('mplot3d', 'mplot3d toolkit'),
-    ('axes_grid', 'axes_grid toolkit'),
-    ('units', 'units'),
-    ('widgets', 'widgets'),
-    )
-
+plot_formats = [('png', 100), ('pdf', 100)]
 
 # Github extension
 
-github_project_url = "http://github.com/matplotlib/matplotlib/"
+github_project_url = "https://github.com/matplotlib/matplotlib/"
 
 # Options for HTML output
 # -----------------------
@@ -171,15 +232,11 @@ html_index = 'index.html'
 #html_sidebars = {}
 
 # Custom sidebar templates, maps page names to templates.
-html_sidebars = {'index': 'indexsidebar.html',
-                 }
-
-
-# Additional templates that should be rendered to pages, maps page names to
-# template names.
-html_additional_pages = {'index': 'index.html',
-                         'gallery':'gallery.html',
-                         'citing': 'citing.html'}
+html_sidebars = {
+    'index': ['searchbox.html', 'donate_sidebar.html'],
+    '**': ['searchbox.html', 'localtoc.html', 'relations.html',
+           'pagesource.html']
+}
 
 # If false, no module index is generated.
 #html_use_modindex = True
@@ -195,6 +252,8 @@ html_use_opensearch = 'False'
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
 
+# Path to favicon
+html_favicon = '_static/favicon.ico'
 
 # Options for LaTeX output
 # ------------------------
@@ -202,16 +261,13 @@ htmlhelp_basename = 'Matplotlibdoc'
 # The paper size ('letter' or 'a4').
 latex_paper_size = 'letter'
 
-# The font size ('10pt', '11pt' or '12pt').
-latex_font_size = '11pt'
-
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 
 latex_documents = [
-  ('contents', 'Matplotlib.tex', 'Matplotlib',
-   'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
-   'matplotlib development team', 'manual'),
+    ('contents', 'Matplotlib.tex', 'Matplotlib',
+     'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
+     'matplotlib development team', 'manual'),
 ]
 
 
@@ -219,8 +275,9 @@ latex_documents = [
 # the title page.
 latex_logo = None
 
+latex_elements = {}
 # Additional stuff for the LaTeX preamble.
-latex_preamble =r"""
+latex_elements['preamble'] = r"""
    % In the parameters section, place a newline after the Parameters
    % header.  (This is stolen directly from Numpy's conf.py, since it
    % affects Numpy-style docstrings).
@@ -240,6 +297,7 @@ latex_preamble =r"""
    \usepackage{enumitem}
    \setlistdepth{2048}
 """
+latex_elements['pointsize'] = '11pt'
 
 # Documents to append as an appendix to all manuals.
 latex_appendices = []
@@ -247,7 +305,10 @@ latex_appendices = []
 # If false, no module index is generated.
 latex_use_modindex = True
 
-latex_use_parts = True
+if hasattr(sphinx, 'version_info') and sphinx.version_info[:2] >= (1, 4):
+    latex_toplevel_sectioning = 'part'
+else:
+    latex_use_parts = True
 
 # Show both class-level docstring and __init__ docstring in class
 # documentation
@@ -258,13 +319,13 @@ rst_epilog = """
 """ % matplotlib.__version__numpy__
 
 texinfo_documents = [
-  ("contents", 'matplotlib', 'Matplotlib Documentation',
-   'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
-   'The matplotlib development team',
-   'Matplotlib', "Python plotting package", 'Programming',
-   1),
+    ("contents", 'matplotlib', 'Matplotlib Documentation',
+     'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
+     'The matplotlib development team',
+     'Matplotlib', "Python plotting package", 'Programming',
+     1),
 ]
 
+# numpydoc config
 
-################# numpydoc config ####################
 numpydoc_show_class_members = False

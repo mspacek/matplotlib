@@ -1,6 +1,6 @@
-******
-legend
-******
+*************************
+legend and legend_handler
+*************************
 
 
 :mod:`matplotlib.legend`
@@ -10,3 +10,9 @@ legend
    :members:
    :undoc-members:
    :show-inheritance:
+
+:mod:`matplotlib.legend_handler`
+================================
+.. automodule:: matplotlib.legend_handler
+      :members:
+      :undoc-members:

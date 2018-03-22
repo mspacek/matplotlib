@@ -1,4 +1,8 @@
 """
+==============
+Text watermark
+==============
+
 Use a Text as a watermark
 """
 import numpy as np
@@ -6,6 +10,10 @@ import numpy as np
 #matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 fig, ax = plt.subplots()
 ax.plot(np.random.rand(20), '-o', ms=20, lw=2, alpha=0.7, mfc='orange')

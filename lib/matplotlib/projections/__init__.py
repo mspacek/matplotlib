@@ -1,6 +1,5 @@
-from __future__ import print_function
-from geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
-from polar import PolarAxes
+from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
+from .polar import PolarAxes
 from matplotlib import axes
 
 class ProjectionRegistry(object):
@@ -29,9 +28,7 @@ class ProjectionRegistry(object):
         Get a list of the names of all projections currently
         registered.
         """
-        names = self._all_projection_types.keys()
-        names.sort()
-        return names
+        return sorted(self._all_projection_types)
 projection_registry = ProjectionRegistry()
 
 projection_registry.register(
@@ -63,42 +60,13 @@ def get_projection_class(projection=None):
         raise ValueError("Unknown projection '%s'" % projection)
 
 
-def projection_factory(projection, figure, rect, **kwargs):
-    """
-    Get a new projection instance.
-
-    *projection* is a projection name.
-
-    *figure* is a figure to add the axes to.
-
-    *rect* is a :class:`~matplotlib.transforms.Bbox` object specifying
-    the location of the axes within the figure.
-
-    Any other kwargs are passed along to the specific projection
-    constructor being used.
-
-    .. deprecated:: 1.3
-
-        This routine is deprecated in favour of getting the projection
-        class directly with :func:`get_projection_class` and initialising it
-        directly. Will be removed in version 1.3.
-
-    """
-
-    return get_projection_class(projection)(figure, rect, **kwargs)
-
-
 def process_projection_requirements(figure, *args, **kwargs):
     """
-    Handle the args/kwargs to for add_axes/add_subplot/gca,
-    returning::
+    Handle the args/kwargs to add_axes/add_subplot/gca, returning::
 
         (axes_proj_class, proj_class_kwargs, proj_stack_key)
 
-    Which can be used for new axes initialization/identification.
-
-    .. note:: **kwargs** is modified in place.
-
+    which can be used for new axes initialization/identification.
     """
     ispolar = kwargs.pop('polar', False)
     projection = kwargs.pop('projection', None)
@@ -110,19 +78,14 @@ def process_projection_requirements(figure, *args, **kwargs):
                 projection)
         projection = 'polar'
 
-    # ensure that the resolution keyword is always put into the key
-    # for polar plots
-    if projection == 'polar':
-        kwargs.setdefault('resolution', 1)
-
-    if isinstance(projection, basestring) or projection is None:
+    if isinstance(projection, str) or projection is None:
         projection_class = get_projection_class(projection)
     elif hasattr(projection, '_as_mpl_axes'):
         projection_class, extra_kwargs = projection._as_mpl_axes()
         kwargs.update(**extra_kwargs)
     else:
         raise TypeError('projection must be a string, None or implement a '
-                            '_as_mpl_axes method. Got %r' % projection)
+                        '_as_mpl_axes method. Got %r' % projection)
 
     # Make the key without projection kwargs, this is used as a unique
     # lookup for axes instances

@@ -1,7 +1,7 @@
 .. _using-git:
 
-Working with *matplotlib* source code
-======================================
+Working with *Matplotlib* source code
+================================================
 
 Contents:
 
@@ -14,3 +14,6 @@ Contents:
    patching
    git_development
    git_resources
+   dot2_dot3
+
+

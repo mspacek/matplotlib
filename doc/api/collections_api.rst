@@ -4,6 +4,7 @@ collections
 
 .. inheritance-diagram:: matplotlib.collections
    :parts: 2
+   :private-bases:
 
 :mod:`matplotlib.collections`
 =============================
@@ -12,3 +13,4 @@ collections
    :members:
    :undoc-members:
    :show-inheritance:
+   :inherited-members:

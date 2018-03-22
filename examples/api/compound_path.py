@@ -1,6 +1,10 @@
 """
-Make a compund path -- in this case two simple polygons, a rectangle
-and a triangle.  Use CLOSEOPOLY and MOVETO for the different parts of
+=============
+Compound path
+=============
+
+Make a compound path -- in this case two simple polygons, a rectangle
+and a triangle.  Use CLOSEPOLY and MOVETO for the different parts of
 the compound path
 """
 import numpy as np
@@ -13,10 +17,10 @@ vertices = []
 codes = []
 
 codes = [Path.MOVETO] + [Path.LINETO]*3 + [Path.CLOSEPOLY]
-vertices = [(1,1), (1,2), (2, 2), (2, 1), (0,0)]
+vertices = [(1, 1), (1, 2), (2, 2), (2, 1), (0, 0)]
 
 codes += [Path.MOVETO] + [Path.LINETO]*2 + [Path.CLOSEPOLY]
-vertices += [(4,4), (5,5), (5, 4), (0,0)]
+vertices += [(4, 4), (5, 5), (5, 4), (0, 0)]
 
 vertices = np.array(vertices, float)
 path = Path(vertices, codes)

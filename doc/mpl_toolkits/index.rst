@@ -1,103 +1,77 @@
 .. _toolkits-index:
 
-.. toctree::
-   :hidden:
-
-   axes_grid/index.rst
-   mplot3d/index.rst
-
+.. _toolkits:
 
 ########
 Toolkits
 ########
 
-.. htmlonly::
-
-   :Release: |version|
-   :Date: |today|
-
-.. _toolkits:
-
-Toolkits are collections of application-specific functions that extend matplotlib.
-
-.. _toolkit_basemap:
-
-Basemap (*Not distributed with matplotlib*)
-============================================
-
-Plots data on map projections, with continental and political
-boundaries, see `basemap <http://matplotlib.org/basemap>`_
-docs.
-
-.. image:: http://matplotlib.org/basemap/_images/contour1.png
-    :height: 400px
 
 
-
-Cartopy  (*Not distributed with matplotlib*)
-============================================
-An alternative mapping library written for matplotlib ``v1.2`` and beyond.
-`Cartopy <http://scitools.org.uk/cartopy/docs/latest>`_ builds on top of
-matplotlib to provide object oriented map projection definitions and close
-integration with Shapely for powerful yet easy-to-use vector data processing
-tools. An example plot from the
-`Cartopy gallery <http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
-
-.. image:: http://scitools.org.uk/cartopy/docs/latest/_images/hurricane_katrina_01_00.png
-    :height: 400px
-
-
-.. _toolkit_gtk:
-
-GTK Tools
-=========
-
-mpl_toolkits.gtktools provides some utilities for working with GTK.
-This toolkit ships with matplotlib, but requires `pygtk
-<http://www.pygtk.org/>`_.
-
-
-.. _toolkit_excel:
-
-Excel Tools
-===========
-
-mpl_toolkits.exceltools provides some utilities for working with
-Excel.  This toolkit ships with matplotlib, but requires
-`xlwt <http://pypi.python.org/pypi/xlwt>`_
-
-
-.. _toolkit_natgrid:
-
-Natgrid (*Not distributed with matplotlib*)
-===========================================
-
-mpl_toolkits.natgrid is an interface to natgrid C library for gridding
-irregularly spaced data.  This requires a separate installation of the
-natgrid toolkit from the sourceforge `download
-<http://sourceforge.net/project/showfiles.php?group_id=80706&package_id=142792>`_
-page.
+Toolkits are collections of application-specific functions that extend
+Matplotlib.
 
 
 .. _toolkit_mplot3d:
 
 mplot3d
-===========
+=======
 
-:ref:`mpl_toolkits.mplot3d <toolkit_mplot3d-index>` provides some basic 3D plotting (scatter, surf,
-line, mesh) tools.  Not the fastest or feature complete 3D library out
-there, but ships with matplotlib and thus may be a lighter weight
-solution for some use cases.
+:mod:`mpl_toolkits.mplot3d` provides some basic 3D
+plotting (scatter, surf, line, mesh) tools.  Not the fastest or most feature
+complete 3D library out there, but it ships with Matplotlib and thus may be a
+lighter weight solution for some use cases. Check out the
+:ref:`mplot3d tutorial <sphx_glr_tutorials_toolkits_mplot3d.py>` for more
+information.
 
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+.. figure:: ../gallery/mplot3d/images/sphx_glr_contourf3d_2_001.png
+   :target: ../gallery/mplot3d/contourf3d_2.html
+   :align: center
+   :scale: 50
 
-.. _toolkit_axes_grid:
+   Contourf3d 2
 
-AxesGrid
-========
+.. toctree::
+    :maxdepth: 2
 
-The matplotlib :ref:`AxesGrid <toolkit_axesgrid-index>` toolkit is a collection of helper classes to
-ease displaying multiple images in matplotlib. The AxesGrid toolkit is
-distributed with matplotlib source.
+    mplot3d/index.rst
+    mplot3d/faq.rst
+
+Links
+-----
+* mpl3d API: :ref:`toolkit_mplot3d-api`
+
+.. _toolkit_axes_grid1:
+
+axes_grid1
+==========
+
+The :mod:`mpl_toolkits.axes_grid1` toolkit is a
+collection of helper classes for displaying multiple axes in Matplotlib.
 
 .. image:: /_static/demo_axes_grid.png
+
+.. toctree::
+    :maxdepth: 2
+
+    axes_grid1/index.rst
+
+
+.. _toolkit_axisartist:
+
+axisartist
+==========
+
+The :mod:`mpl_toolkits.axisartist` toolkit contains
+a custom Axes class that is meant to support curvilinear grids.
+
+.. toctree::
+    :maxdepth: 2
+
+    axisartist/index.rst
+
+
+API
+---
+* Axes Grid and Axis Artist API: :ref:`axes_grid-api-index`
+

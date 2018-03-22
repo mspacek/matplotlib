@@ -2,12 +2,11 @@
 Contains a classes for generating hatch patterns.
 """
 
-from __future__ import print_function
 import numpy as np
 from matplotlib.path import Path
 
 
-class HatchPatternBase:
+class HatchPatternBase(object):
     """
     The base class for a hatch pattern.
     """
@@ -16,7 +15,7 @@ class HatchPatternBase:
 
 class HorizontalHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = (hatch.count('-') + hatch.count('+')) * density
+        self.num_lines = int((hatch.count('-') + hatch.count('+')) * density)
         self.num_vertices = self.num_lines * 2
 
     def set_vertices_and_codes(self, vertices, codes):
@@ -33,7 +32,7 @@ class HorizontalHatch(HatchPatternBase):
 
 class VerticalHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = (hatch.count('|') + hatch.count('+')) * density
+        self.num_lines = int((hatch.count('|') + hatch.count('+')) * density)
         self.num_vertices = self.num_lines * 2
 
     def set_vertices_and_codes(self, vertices, codes):
@@ -50,8 +49,8 @@ class VerticalHatch(HatchPatternBase):
 
 class NorthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = (hatch.count('/') + hatch.count('x') +
-                          hatch.count('X')) * density
+        self.num_lines = int((hatch.count('/') + hatch.count('x') +
+                          hatch.count('X')) * density)
         if self.num_lines:
             self.num_vertices = (self.num_lines + 1) * 2
         else:
@@ -69,8 +68,8 @@ class NorthEastHatch(HatchPatternBase):
 
 class SouthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = (hatch.count('\\') + hatch.count('x') +
-                          hatch.count('X')) * density
+        self.num_lines = int((hatch.count('\\') + hatch.count('x') +
+                          hatch.count('X')) * density)
         self.num_vertices = (self.num_lines + 1) * 2
         if self.num_lines:
             self.num_vertices = (self.num_lines + 1) * 2
@@ -95,8 +94,8 @@ class Shapes(HatchPatternBase):
             self.num_shapes = 0
             self.num_vertices = 0
         else:
-            self.num_shapes = ((self.num_rows / 2 + 1) * (self.num_rows + 1) +
-                               (self.num_rows / 2) * (self.num_rows))
+            self.num_shapes = ((self.num_rows // 2 + 1) * (self.num_rows + 1) +
+                               (self.num_rows // 2) * (self.num_rows))
             self.num_vertices = (self.num_shapes *
                                  len(self.shape_vertices) *
                                  (self.filled and 1 or 2))
@@ -110,7 +109,7 @@ class Shapes(HatchPatternBase):
         shape_size = len(shape_vertices)
 
         cursor = 0
-        for row in xrange(self.num_rows + 1):
+        for row in range(self.num_rows + 1):
             if row % 2 == 0:
                 cols = np.linspace(0.0, 1.0, self.num_rows + 1, True)
             else:

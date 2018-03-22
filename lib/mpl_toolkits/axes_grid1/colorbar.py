@@ -18,6 +18,11 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import six
+from six.moves import xrange, zip
 
 import numpy as np
 import matplotlib as mpl
@@ -71,8 +76,8 @@ colormap_kw_doc = '''
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
-    *drawedges*   [ False | True ] If true, draw lines at color
-                  boundaries.
+    *drawedges*   bool
+                  Whether to draw lines at color boundaries.
     ===========   ====================================================
 
     The following will probably be useful only in the context of
@@ -369,14 +374,13 @@ class ColorbarBase(cm.ScalarMappable):
         if format is None:
             if isinstance(self.norm, colors.LogNorm):
                 # change both axis for proper aspect
-                self.ax.xaxis.set_scale("log")
-                self.ax.yaxis.set_scale("log")
-                self.ax._update_transScale()
+                self.ax.set_xscale("log")
+                self.ax.set_yscale("log")
                 self.cbar_axis.set_minor_locator(ticker.NullLocator())
                 formatter = ticker.LogFormatter()
             else:
                 formatter = None
-        elif cbook.is_string_like(format):
+        elif isinstance(format, six.string_types):
             formatter = ticker.FormatStrFormatter(format)
         else:
             formatter = format  # Assume it is a Formatter
@@ -525,9 +529,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [zip(X[i], Y[i]) for i in range(1, N-1)]
+            return [list(zip(X[i], Y[i])) for i in xrange(1, N-1)]
         else:
-            return [zip(Y[i], X[i]) for i in range(1, N-1)]
+            return [list(zip(Y[i], X[i])) for i in xrange(1, N-1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -561,10 +565,11 @@ class ColorbarBase(cm.ScalarMappable):
 
         self.solids = col
         if self.drawedges:
-            self.dividers = collections.LineCollection(self._edges(X,Y),
-                              colors=(mpl.rcParams['axes.edgecolor'],),
-                              linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
-                              )
+            self.dividers = collections.LineCollection(
+                self._edges(X,Y),
+                colors=(mpl.rcParams['axes.edgecolor'],),
+                linewidths=(0.5*mpl.rcParams['axes.linewidth'],),
+            )
             self.ax.add_collection(self.dividers)
         else:
             self.dividers = None
@@ -573,21 +578,15 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         Draw lines on the colorbar. It deletes preexisting lines.
         '''
-        del self.lines
-
-        N = len(levels)
-        x = np.array([1.0, 2.0])
-        X, Y = np.meshgrid(x,levels)
+        X, Y = np.meshgrid([1, 2], levels)
         if self.orientation == 'vertical':
-            xy = [zip(X[i], Y[i]) for i in range(N)]
+            xy = np.stack([X, Y], axis=-1)
         else:
-            xy = [zip(Y[i], X[i]) for i in range(N)]
-        col = collections.LineCollection(xy, linewidths=linewidths,
-                                         )
+            xy = np.stack([Y, X], axis=-1)
+        col = collections.LineCollection(xy, linewidths=linewidths)
         self.lines = col
         col.set_color(colors)
         self.ax.add_collection(col)
-
 
     def _select_locator(self, formatter):
         '''
@@ -743,7 +742,6 @@ class Colorbar(ColorbarBase):
         # to make one object track another automatically.
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
-        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
     def update_bruteforce(self, mappable):
@@ -816,7 +814,7 @@ def colorbar(mappable, cax=None, ax=None, **kw):
         ax = plt.gca()
     if cax is None:
         cax, kw = make_axes(ax, **kw)
-    cax.hold(True)
+    cax._hold = True
     cb = Colorbar(cax, mappable, **kw)
 
     def on_changed(m):

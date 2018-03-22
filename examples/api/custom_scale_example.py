@@ -1,10 +1,22 @@
-from __future__ import unicode_literals
+"""
+============
+Custom scale
+============
+
+Create a custom scale, by implementing the scaling use for latitude data in a
+Mercator Projection.
+"""
 
 import numpy as np
 from numpy import ma
 from matplotlib import scale as mscale
 from matplotlib import transforms as mtransforms
 from matplotlib.ticker import Formatter, FixedLocator
+from matplotlib import rcParams
+
+
+# BUG: this example fails with any other setting of axisbelow
+rcParams['axes.axisbelow'] = False
 
 
 class MercatorLatitudeScale(mscale.ScaleBase):
@@ -32,7 +44,6 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     # scale.
     name = 'mercator'
 
-
     def __init__(self, axis, **kwargs):
         """
         Any keyword arguments passed to ``set_xscale`` and
@@ -42,7 +53,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         thresh: The degree above which to crop the data.
         """
         mscale.ScaleBase.__init__(self)
-        thresh = kwargs.pop("thresh", (85 / 180.0) * np.pi)
+        thresh = kwargs.pop("thresh", np.radians(85))
         if thresh >= np.pi / 2.0:
             raise ValueError("thresh must be less than pi/2")
         self.thresh = thresh
@@ -72,12 +83,10 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         """
         class DegreeFormatter(Formatter):
             def __call__(self, x, pos=None):
-                # \u00b0 : degree symbol
-                return "%d\u00b0" % ((x / np.pi) * 180.0)
+                return "%d\N{DEGREE SIGN}" % np.degrees(x)
 
-        deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(
-                np.arange(-90, 90, 10) * deg2rad))
+            np.radians(np.arange(-90, 90, 10))))
         axis.set_major_formatter(DegreeFormatter())
         axis.set_minor_formatter(DegreeFormatter())
 
@@ -105,6 +114,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         input_dims = 1
         output_dims = 1
         is_separable = True
+        has_inverse = True
 
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
@@ -133,12 +143,14 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             Override this method so matplotlib knows how to get the
             inverse transform for this transform.
             """
-            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(self.thresh)
+            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(
+                self.thresh)
 
     class InvertedMercatorLatitudeTransform(mtransforms.Transform):
         input_dims = 1
         output_dims = 1
         is_separable = True
+        has_inverse = True
 
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
@@ -159,7 +171,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     t = np.arange(-180.0, 180.0, 0.1)
-    s = t / 360.0 * np.pi
+    s = np.radians(t)/2.
 
     plt.plot(t, s, '-', lw=2)
     plt.gca().set_yscale('mercator')
@@ -170,4 +182,3 @@ if __name__ == '__main__':
     plt.grid(True)
 
     plt.show()
-
